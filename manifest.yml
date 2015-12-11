@@ -3,8 +3,10 @@ applications:
 - name: drupal
   memory: 128M 
   instances: 1
-  host: drupal-running-on
-  domain: cfapps.io
+  host: 18F-drupal
+  domain: apps.cloud.gov
   path: .
   services:
-  - p-mysql-db
+  - 18F-drupal-mysql
+
+ 
