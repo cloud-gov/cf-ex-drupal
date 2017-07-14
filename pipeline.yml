@@ -1,0 +1,50 @@
+jobs:
+- name: deploy-drupal-7
+  plan:
+  - aggregate: *plan-gets
+  - put: deploy-drupal-7
+    params:
+      path: cf-ex-drupal
+      manifest: cf-ex-drupal/manifest.yml
+  on_failure:
+    put: slack
+    params:
+      <<: *slack-params
+      text: |
+        :x: Failed to deploy Drupal sample app
+        <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+  on_success:
+    put: slack
+    params:
+      <<: *slack-params
+      channel: ((slack-news-channel))
+      text: |
+        :white_check_mark: Successfully deployed Drupal sample app
+        <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+
+resources:
+- name: cf-ex-drupal
+  type: git
+  source:
+    uri: https://github.com/18F/cf-ex-drupal
+    branch: master
+
+- name: timer
+  type: time
+  source:
+    interval: 24h
+
+- name: deploy-drupal-7
+  type: cf
+  source: *cf-source
+
+- name: slack
+  type: slack-notification
+  source:
+    url: ((slack-webhook-url))
+
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
