@@ -9,3 +9,4 @@ applications:
   - drupal8-db-service
   env:
     DRUPAL_HASH_SALT: secure-random-string
+    BP_DEBUG: true
