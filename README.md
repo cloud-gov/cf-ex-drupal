@@ -62,3 +62,6 @@ Please read the following before using Drupal in production on Cloud Foundry.
 
 [PHP Buildpack]:https://github.com/cloudfoundry/php-buildpack
 [local storage on CloudFoundry]:https://docs.cloudfoundry.org/devguide/deploy-apps/prepare-to-deploy.html#filesystem
+
+# Code Climate Test
+This PR should not be merged
