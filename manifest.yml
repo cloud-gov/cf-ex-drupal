@@ -6,6 +6,6 @@ applications:
   instances: 1
   path: .
   services:
-  - my-db-service
+  - drupal7-db-service
   env:
     DRUPAL_HASH_SALT: secure-random-string

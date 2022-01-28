@@ -1,0 +1,71 @@
+---
+jobs:
+- name: deploy-drupal-7
+  plan:
+  - get: cf-ex-drupal-src
+  - task: create-db
+    file: cf-ex-drupal-src/ci/create-db.yml
+    params:
+      # Note: Name must match service name in manifest
+      SERVICE_TYPE: aws-rds
+      SERVICE_NAME: drupal7-db-service
+      SERVICE_PLAN: shared-mysql
+      <<: *cf-creds-staging
+  - put: deploy-drupal-7
+    params:
+      path: cf-ex-drupal-src
+      manifest: cf-ex-drupal-src/manifest.yml
+  on_failure:
+    put: slack
+    params:
+      text: |
+        :x: Failed to deploy cf-ex-drupal
+        <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+      channel: {{slack-channel}}
+  on_success:
+    put: slack
+    params:
+      text: |
+        :white_check_mark: Successfully deployed cf-ex-drupal
+        <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+      channel: {{slack-channel}}
+
+resources:
+- name: cf-ex-drupal-src
+  type: git
+  source:
+    uri: {{cf-ex-drupal-git-url}}
+    branch: {{cf-ex-drupal-git-branch}}
+
+- name: timer
+  type: time
+  source:
+    interval: 24h
+
+- name: deploy-drupal-7
+  type: cf
+  source:
+    api: {{cf-api-url-staging}}
+    username: {{cf-deploy-username-staging}}
+    password: {{cf-deploy-password-staging}}
+    organization: {{cf-organization-staging}}
+    space: {{cf-space-staging}}
+
+- name: slack
+  type: slack-notification
+  source:
+    url: ((slack-webhook-url))
+
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+
+meta:
+  cf-creds-staging: &cf-creds-staging
+    CF_API_URL: {{cf-api-url-staging}}
+    CF_USERNAME: {{cf-deploy-username-staging}}
+    CF_PASSWORD: {{cf-deploy-password-staging}}
+    CF_ORGANIZATION: {{cf-organization-staging}}
+    CF_SPACE: {{cf-space-staging}}

@@ -24,7 +24,7 @@ This is an out-of-the-box implementation of Drupal 7.  It's an example of how co
 1.  If you don't have one already, create a MySQL service. If you have a cloud.gov account, the following command will create a free MySQL database.
 
     ```bash
-    cf create-service aws-rds shared-mysql my-db-service
+    cf create-service aws-rds shared-mysql drupal7-db-service
     ```
 
 1. Edit `manifest.yml` and change `DRUPAL_HASH_SALT`. This should be unique for every installation. (Note that you do *not* need to edit the database configuration in `htdocs/sites/default/settings.php`. The file included with this example will automatically pull that information from `VCAP_SERVICES`.)
